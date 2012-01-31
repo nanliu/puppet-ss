@@ -1,4 +1,4 @@
-require "secretserver"
+require 'puppet/util/secretserver'
 
 module Puppet::Parser::Functions
 

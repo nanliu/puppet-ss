@@ -1,4 +1,4 @@
-require "secretserver"
+require 'puppet/util/secretserver'
 
 # This should set the password in SecretServer
 #

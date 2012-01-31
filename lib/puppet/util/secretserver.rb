@@ -2,7 +2,7 @@ require "rubygems"
 require "savon"
 require "base64"
 
-class SecretServer
+class Puppet::Util::SecretServer
   attr_reader :error, :result, :templates, :folders
 
   class Secret
@@ -237,4 +237,3 @@ class SecretServer
   end
 
 end
-
