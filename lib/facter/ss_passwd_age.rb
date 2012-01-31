@@ -2,12 +2,12 @@ accounts   = {}
 uids       = {}
 
 # Force loading of these facts, otherwise we get the wrong osfamily value:
-Facter.collection.loader.load(:operatingsystem)
-Facter.collection.loader.load(:osfamily)
+#Facter.collection.loader.load(:operatingsystem)
+#Facter.collection.loader.load(:osfamily)
 
 # For just the system users
-case Facter.value(:osfamily)
-when 'RedHat',
+case Facter.value(:operatingsystem)
+when 'RedHat'
   maxuid = 500
 when 'Ubuntu', 'Debian'
   maxuid = 1000
