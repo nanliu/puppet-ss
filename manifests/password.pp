@@ -84,7 +84,7 @@ define ss::password (
         err( $rv )
       } else {
         notify { "ss::password: ${username}":
-          message  => "SecretServer password updated for ${username}@${fqdn}",
+          message  => "SecretServer password updated for ${username}@${::fqdn}",
           withpath => false,
         }
       }

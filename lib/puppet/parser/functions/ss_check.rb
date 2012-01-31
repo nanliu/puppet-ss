@@ -20,11 +20,10 @@ module Puppet::Parser::Functions
 
     # Establish session
     begin
-      ss = Puppet::Util::SecretServer.new(sshostname, "secretserver", ssuser, sspassword, '', 'Local' )
-    rescue
-      return 'unknown'
+      ss = SecretServer.new(sshostname, "secretserver", ssuser, sspassword, '', 'Local' )
+    rescue Exception => e
+      return 'unknown: rescued #{e.message}'
     end
-
 
     # Seek the item
     begin
@@ -39,7 +38,7 @@ module Puppet::Parser::Functions
             dunnit = 1
           end
         }
-        if dunnit 
+        if dunnit
           return 'true'
         end
         return 'false'

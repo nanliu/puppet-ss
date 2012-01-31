@@ -11,15 +11,15 @@ module Puppet::Parser::Functions
     sspassword   = args[4]
     sshostname   = args[5]
     foldername   = args[6]
-    templatename = 'Unix Account (SSH)' # Secret type for creates
+    templatename = 'RPC - Unix Account (SSH)' # Secret type for creates
 
     if foldername = ''
       foldername = 'Drop-box' # Folder for creates (cannot be blank)
     end
 
     Savon.configure do |config|
-      config.log          = false            # disable logging
-      config.log_level    = :error     # changing the log level
+      config.log          = false  # disable logging
+      config.log_level    = :error # changing the log level
       config.raise_errors = false
     end
 
@@ -27,13 +27,13 @@ module Puppet::Parser::Functions
 
     # Establish session
     begin
-      ss = Puppet::Util::SecretServer.new(sshostname, "secretserver", ssuser, sspassword, '', 'Local' )
-    rescue
-      return "Login to Secret Server failed!"
+      ss = SecretServer.new(sshostname, "secretserver", ssuser, sspassword, '', 'Local' )
+    rescue Exception => e
+      return "SecretServer: Login failed #{e.message}"
     end
 
     if Puppet[:noop]
-      return "SecretServer NOT updated as in --noop mode"
+      return "SecretServer: NOT updated as in --noop mode"
     end
 
     # Seek the item
