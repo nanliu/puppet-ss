@@ -1,10 +1,8 @@
-username   = nil
-passwd_age = nil
 accounts   = {}
 uids       = {}
 
 # For just the system users
-case Facter[:osfamily].value
+case Facter.value(:osfamily)
 when 'RedHat'
   maxuid = 500
 when 'Ubuntu'
@@ -15,19 +13,19 @@ else
   maxuid = 500
 end
 # For all users just set FACTER_ss_all_user = 100000
-maxuid = Facter['ss_userlimit'].value if Facter['ss_userlimit'].value
+maxuid = Facter.value(:ss_userlimit) if Facter.value(:ss_userlimit)
 
 File.open("/etc/passwd").each do |line|
   uids[$1] = $2.to_i if line =~ /^([^:\s]+):[^:]+:(\d+):/
 end
 
 File.open("/etc/shadow").each do |line|
+  username   = nil
+  passwd_age = nil
   username = $1 and passwd_age = $2 if line =~ /^([^:\s]+):[^:]+:(\d+):/ && uids[$1] && uids[$1] < maxuid
   if username != nil && passwd_age != nil
     accounts['ss_passwd_age_'+username] =
       ((Time.now-Time.at(passwd_age.to_i*24*3600))/(24*3600)).floor
-    username   = nil
-    passwd_age = nil
   end
 end
 
