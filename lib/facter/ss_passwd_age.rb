@@ -1,6 +1,9 @@
 accounts   = {}
 uids       = {}
 
+# Do not remove this line, it load operatingsystem for osfamily
+os = Facter.value(:operatingsystem)
+
 # For just the system users
 case Facter.value(:osfamily)
 when 'RedHat'
