@@ -11,9 +11,10 @@ module Puppet::Parser::Functions
     sspassword   = args[4]
     sshostname   = args[5]
     foldername   = args[6]
-    templatename = 'RPC - Unix Account (SSH)' # Secret type for creates
+    templatename = args[7]
+    templatename ||= 'RPC - Unix Account (SSH)' # Secret type for creates
 
-    if foldername = ''
+    if foldername == ''
       foldername = 'Drop-box' # Folder for creates (cannot be blank)
     end
 
@@ -27,7 +28,7 @@ module Puppet::Parser::Functions
 
     # Establish session
     begin
-      ss = SecretServer.new(sshostname, "secretserver", ssuser, sspassword, '', 'Local' )
+      ss = Puppet::Util::SecretServer.new(sshostname, "secretserver", ssuser, sspassword, '', 'Local' )
     rescue Exception => e
       return "SecretServer: Login failed #{e.message}"
     end

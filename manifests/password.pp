@@ -41,7 +41,8 @@ define ss::password (
   $folder      = hiera('ss_folder'),
   $ss_username = hiera('ss_username'),
   $ss_password = hiera('ss_password'),
-  $ss_hostname = hiera('ss_hostname')
+  $ss_hostname = hiera('ss_hostname'),
+  $ss_template = hiera('ss_template', 'Unix - Account (ssh)')
 ) {
   $account_age = ss_passwd_age($username)
   $ss_exists = ss_check($username, $::fqdn, $ss_username, $ss_password, $ss_hostname)
@@ -75,7 +76,7 @@ define ss::password (
         withpath => false, # This should be by default (???)
       }
     } else {
-      $rv = ss_setpass($username, $::fqdn, $newpass, $ss_username, $ss_password, $ss_hostname, $folder)
+      $rv = ss_setpass($username, $::fqdn, $newpass, $ss_username, $ss_password, $ss_hostname, $folder, $ss_template)
       if $rv != 'false' {
         notify { "ss::password: ${username}":
           message  => "Error: SecretServer password update FAILED for ${username}@${::fqdn}: ${rv}",
