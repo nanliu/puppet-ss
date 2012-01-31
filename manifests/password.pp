@@ -69,7 +69,7 @@ define ss::password (
       onlyif=>"/bin/egrep '^${username}:' /etc/passwd",
     }
     # update secretserver
-    if $::ss_noop {
+    if $::ss_noop == "false" {
       notify { "ss::password: ${username}":
         message  => "Not updating SecretServer for ${username} because in --noop mode",
         withpath => false, # This should be by default (???)
