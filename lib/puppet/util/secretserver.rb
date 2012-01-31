@@ -53,7 +53,7 @@ class Puppet::Util::SecretServer
     @client = Savon::Client.new { wsdl.document = "https://#{host}/#{prefix}/webservices/SSWebService.asmx?wsdl" }
 
     if ! defined? @client
-      raise RuntimeError, "Failed to connect to #{host}"
+      raise RuntimeError, "Failed to connect to #{host} https://#{host}/#{prefix}/webservices/SSWebService.asmx?wsdl"
     end
 
     if rad
