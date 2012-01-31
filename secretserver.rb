@@ -3,45 +3,45 @@ require "savon"
 require "base64"
 
 class SecretServer
-   attr_reader :error, :result, :templates, :folders
+  attr_reader :error, :result, :templates, :folders
 
-   class Secret
-     attr_reader :secret
+  class Secret
+    attr_reader :secret
 
-      def initialize( s )
-        @secret = s
-      end
+    def initialize( s )
+      @secret = s
+    end
 
-      def update( what)
-        @secret[:items][:secret_item].each do |f|
-          if  what[f[:field_name]]
-            f[:value] =  what[f[:field_name]]
-             what.delete(f[:field_name])
-          end
+    def update( what)
+      @secret[:items][:secret_item].each do |f|
+        if  what[f[:field_name]]
+          f[:value] =  what[f[:field_name]]
+          what.delete(f[:field_name])
         end
-        raise ArgumentError, "field ''#{what.keys.join(',')}' not found in secret" if what.size > 0
-
       end
-      @secret
-   end
+      raise ArgumentError, "field ''#{what.keys.join(',')}' not found in secret" if what.size > 0
 
-   class SearchResult
+    end
+    @secret
+  end
 
-      def initialize(results)
-          @search_result = results
-      end
+  class SearchResult
 
-      def secret_id
-         @search_result[:secret_id]
-      end
-      def secret_name
-         @search_result[:secret_name]
-      end
-      def secret_type_name
-         @search_result[:secret_type_name]
-      end
+    def initialize(results)
+      @search_result = results
+    end
 
-   end
+    def secret_id
+      @search_result[:secret_id]
+    end
+    def secret_name
+      @search_result[:secret_name]
+    end
+    def secret_type_name
+      @search_result[:secret_type_name]
+    end
+
+  end
 
 
   def initialize ( host, prefix, user, password, organizationCode, domain )
@@ -58,8 +58,8 @@ class SecretServer
 
     if rad
       request( 'AuthenticateRADIUS', {:username=>user, :password=> pw,
-                                :radius_password => rad, :domain => domain,
-                                :organization_code => organizationCode })
+              :radius_password => rad, :domain => domain,
+              :organization_code => organizationCode })
     else
       request( 'Authenticate',  {:username=>user, :password=> pw })
 
@@ -120,7 +120,7 @@ class SecretServer
       secret_id = secret_id.secret_id
     end
     request( "DownloadFileAttachmentByItemId", 
-      { :secret_id => secret_id, :secret_item_id => item_id } )
+            { :secret_id => secret_id, :secret_item_id => item_id } )
 
     # do we need to decode from base64bin?
     Base64.decode64(@result[:file_attachment])

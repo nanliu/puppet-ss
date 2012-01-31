@@ -19,10 +19,10 @@
 #   ss::cert { 'list.auckland.ac.nz': }
 #
 define ss::cert(
-  {$key     = "/etc/httpd/conf/${name}.key",
-  $crt      = "/etc/httpd/conf/${name}.crt",
-  $service  = true,
-  $ss       = true,
+  $key         = "/etc/httpd/conf/${name}.key",
+  $crt         = "/etc/httpd/conf/${name}.crt",
+  $service     = true,
+  $ss          = true,
   $ss_username = hiera('ss_username'),
   $ss_password = hiera('ss_password'),
   $ss_hostname = hiera('ss_hostname')
@@ -49,7 +49,7 @@ define ss::cert(
       if ! defined( Service[httpd] ) {
         service { 'httpd':
           ensure     => running,
-          enable     => true;
+          enable     => true,
           hasstatus  => true,
           hasrestart => true,
         }
@@ -74,8 +74,8 @@ define ss::cert(
       notify  => $refreshsvc,
     }
   } else {
-    notify { "certerror-$name":
-      message  => "ERROR: No certificate found for $name";
+    notify { "ss::cert: $name":
+      message  => "ERROR: No certificate found for $name",
       withpath => false,
     }
   }

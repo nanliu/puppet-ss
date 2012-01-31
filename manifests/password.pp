@@ -36,53 +36,55 @@ define ss::password (
   $username    = $name, # namevar
   $max_age     = hiera('ss_max_age', 30),
   $minreset    = hiera('ss_minreset', 0),
-  $debug       = hiera('ss_debug', false)
+  $debug       = hiera('ss_debug', false),
   # defaults provided in ss::data
-  $folder      = hiera('ss_folder')
+  $folder      = hiera('ss_folder'),
   $ss_username = hiera('ss_username'),
   $ss_password = hiera('ss_password'),
-  $ss_hostname = hiera('ss_hostname'),
+  $ss_hostname = hiera('ss_hostname')
 ) {
-  $account_age = password_age($username)
+  $account_age = ss_passwd_age($username)
   $ss_exists = ss_check($username, $fqdn, $ss_username, $ss_password, $ss_hostname)
   if $debug {
     notice ( "ss::password: ${username} password age ${age_account} days, SS account record ${ss_exists}" )
   }
   if $account_age > $maxage or $ss_exists == 'false' {
-    $newpass = generate_password($password_length)
-    notice( "Updating password for $username on $fqdn" )
+    $newpass = ss_gen_passwd($password_length)
+    if $debug {
+      notice( "Updating password for ${username} on ${::fqdn}" )
+    }
 
     # change password for account
     exec { "passwd_$name":
-      command => $operatingsystem?{
+      command => $::osfamily ?{
         # RedHat allows /usr/bin/passwd --stdin, but all
         # allow use of /usr/sbin/chpasswd
         # Solaris needs chpasswd to be installed but then it
         # works OK.  AIX, no idea...
-        /(RedHat|CentOS|Fedora)/=>"/usr/bin/chage -m '$minreset' '$username';/bin/echo '$username:$newpass'|/usr/sbin/chpasswd",
-        /(Ubuntu|Debian)/       =>"/usr/bin/chage -m '$minreset' '$username';/bin/echo '$username:$newpass'|/usr/sbin/chpasswd",
-        /(Solaris|SunOS)/       =>"/bin/echo '$username:$newpass'|/usr/sbin/chpasswd",
-        default=>"/bin/false",
+        'RedHat'  => "/usr/bin/chage -m '$minreset' '$username';/bin/echo '$username:$newpass'|/usr/sbin/chpasswd",
+        'Debian'  => "/usr/bin/chage -m '$minreset' '$username';/bin/echo '$username:$newpass'|/usr/sbin/chpasswd",
+        'Solaris' => "/bin/echo '$username:$newpass'|/usr/sbin/chpasswd",
+        default   => '/bin/false',
       },
       onlyif=>"/bin/egrep '^${username}:' /etc/passwd",
     }
     # update secretserver
     if $::ss_noop {
       notify { "ss::password: ${username}":
-        message  => "Not updating SecretServer for ${username} because in --noop mode"
+        message  => "Not updating SecretServer for ${username} because in --noop mode",
         withpath => false, # This should be by default (???)
       }
     } else {
       $rv = ss_setpass($username, $fqdn, $newpass, $ss_username, $ss_password, $ss_hostname, $folder)
       if $rv != 'false' {
         notify { "ss::password: ${username}":
-          message=>"Error: SecretServer password update FAILED for $username@$fqdn: $rv",
-          withpath=>false,
+          message  => "Error: SecretServer password update FAILED for ${username}@${::fqdn}: ${rv}",
+          withpath => false,
         }
         err( $rv )
       } else {
         notify { "ss::password: ${username}":
-          message  => "SecretServer password updated for $username@$fqdn",
+          message  => "SecretServer password updated for ${username}@${fqdn}",
           withpath => false,
         }
       }
