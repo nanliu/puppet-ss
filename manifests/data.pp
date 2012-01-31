@@ -13,9 +13,9 @@
 # This folder must exist, and have read/write access to the 
 # puppet username.
 class ss::data {
-  $ss_hostname     = hiera('ss_hostname', 'ss.puppetlabs.lan')
-  $ss_username     = hiera('ss_username', 'puppet')
-  $ss_password     = hiera('ss_password', 'secretpassword')
-  $ss_folder       = hiera('ss_folder', 'Drop-box')
-  $password_length = hiera('ss_password_length', 10)
+  $ss_hostname     = 'ss.puppetlabs.lan'
+  $ss_username     = 'puppet'
+  $ss_password     = 'secretpassword'
+  $ss_folder       = 'puppet_folder'
+  $password_length = 10
 }
