@@ -48,7 +48,7 @@ define ss::password (
   if $debug {
     notice ( "ss::password: ${username} password age ${age_account} days, SS account record ${ss_exists}" )
   }
-  if $account_age > $maxage or $ss_exists == 'false' {
+  if $account_age > $max_age or $ss_exists == 'false' {
     $newpass = ss_gen_passwd($password_length)
     if $debug {
       notice( "Updating password for ${username} on ${::fqdn}" )
