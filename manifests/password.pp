@@ -75,7 +75,7 @@ define ss::password (
         withpath => false, # This should be by default (???)
       }
     } else {
-      $rv = ss_setpass($username, $fqdn, $newpass, $ss_username, $ss_password, $ss_hostname, $folder)
+      $rv = ss_setpass($username, $::fqdn, $newpass, $ss_username, $ss_password, $ss_hostname, $folder)
       if $rv != 'false' {
         notify { "ss::password: ${username}":
           message  => "Error: SecretServer password update FAILED for ${username}@${::fqdn}: ${rv}",
