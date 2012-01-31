@@ -1,16 +1,17 @@
 accounts   = {}
 uids       = {}
 
-# Do not remove this line, it load operatingsystem for osfamily
-os = Facter.value(:operatingsystem)
+# Force loading of these facts, otherwise we get the wrong osfamily value:
+Facter.collection.loader.load(:operatingsystem)
+Facter.collection.loader.load(:osfamily)
 
 # For just the system users
 case Facter.value(:osfamily)
-when 'RedHat'
+when 'RedHat',
   maxuid = 500
-when 'Ubuntu'
+when 'Ubuntu', 'Debian'
   maxuid = 1000
-when 'Solaris'
+when 'sunos'
   maxuid = 500
 else
   maxuid = 500
