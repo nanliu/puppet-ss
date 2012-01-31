@@ -17,7 +17,7 @@ module Puppet::Parser::Functions
 
     # Establish session
     begin
-      ss = SecretServer.new(sshostname, "secretserver",
+      ss = Puppet::Util::SecretServer.new(sshostname, "secretserver",
                             ssuser, sspassword, '', 'Local' )
     rescue
       return ''
