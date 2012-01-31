@@ -1,0 +1,32 @@
+{
+  "types": [
+
+  ],
+  "description": "Module to integrate Puppet with SecretServer from Thycotic.com.\nThis manages passwords, regularly rotating them and ensuring they are\nstored in the SecretServer database as Unix Password objects.\nIt also synchronises certificate and key files on the client with Certificate\nobjects in the SecretServer database.",
+  "source": "UNKNOWN",
+  "summary": "Integration with SecretServer from Thycotic to manage passwords and certificates",
+  "author": "Steve Shipway",
+  "checksums": {
+    "lib/puppet/parser/functions/ss_fetch_cert.rb": "722b4f74dbb67eeb72ae9a1d468f2e7a",
+    "lib/puppet/parser/functions/generate_password.rb": "29a09f4f234816877fa814a205716d90",
+    "secretserver.rb": "367d4a593f2565632da3614c752f2aa1",
+    "manifests/cert.pp": "21edabb928d11f723dd5828db5d936ab",
+    "lib/puppet/parser/functions/ss_check.rb": "820e9e7f4608208ee714fe5831ed83a1",
+    "README": "c33ad955e7122d207f61851e6050e0dc",
+    "lib/puppet/parser/functions/ss_setpass.rb": "fd2a5e391af5c4433af9a766eae72d86",
+    "lib/puppet/parser/functions/ss_fetch_key.rb": "0c3509279e449b0df1ae59072638011d",
+    "manifests/password.pp": "87de398e0508e4b14134c34b76ea5286",
+    "lib/facter/passwords.rb": "4366a4e4bc77c5414275440d7810f6c0",
+    "lib/puppet/parser/functions/password_age.rb": "bec05377a46205fd2fdd12b9049e6d60",
+    "Modulefile": "333bc81a6534ad59bfe07c5a7bd29b67",
+    "Makefile": "7bc798219aea390889fe344a52cc9f27",
+    "manifests/init.pp": "690c37098f193603c0bf150e332d9ef7"
+  },
+  "dependencies": [
+
+  ],
+  "license": "GPLv2 or later",
+  "version": "2.1.0",
+  "name": "sshipway-ss",
+  "project_page": "http://www.steveshipway.org/forum"
+}

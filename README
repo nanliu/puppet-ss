@@ -1,0 +1,109 @@
+Steve Shipway
+University of Auckland
+s.shipway@auckland.ac.nz
+Version 2.0: Dec 2011
+Tested with RHEL(5.3,6.2), Ubuntu(Lucid), SecretServer(7.8)
+
+Requires Savon Ruby Gem to be installed on Puppet Master: 'gem install savon'
+This probably means you need RHEL6 since RHEL6 Ruby did not support gems.
+
+Also requires the secretserver.rb module file to be installed in 
+/usr/lib/ruby/site_ruby/1.8/secretserver.rb
+
+# PARAMETERS
+
+Set these in the init.pp file
+
+   $ss_hostname = 'secretserver.auckland.ac.nz'
+   $ss_username = 'puppet'
+   $ss_password = 'mypassword'
+   $ss_folder   = 'Drop-box'
+
+# PASSWORD CLASS
+Change password if older than 30 days, updating secret server (thycotic.com)
+database to reflect changes.
+
+Allows you to have regularly rotating passwords, stored centrally and audited, 
+but with noone actually knowing what they are.
+
+This will also change and update if password is not yet defined on SecretSvr
+It will NOT verify that SS record contains the correct password though as
+this is not necessarily possible with various backends
+
+Only users with UID<500 are checked; to change this, edit the facter module
+to set facts for ALL users. (see comments at start of lib/facter/password.rb )
+Note that ubuntu/debian people may wish to make this threshold <1000 instead.
+
+Facter should set facts: pwage_(.*) for all accounts <500
+
+To use:
+   ss::password { 'root': }
+   ss::password { 'oracle': maxage=>60, folder=>'Oracle Passwords' }
+
+Attributes:
+   maxage: number of days old a password must be before it gets auto changed
+           default is 30
+   folder: which SecretServer folder to place the secret into, if not the
+           default
+   username: (namevar) username to set password for
+   minchange: minimum number of days before password can be changed by user
+           default is 0 (may not be supported by your unix)
+
+SecretServer:
+   The new password secure is of type 'Unix Account (SSH)'
+   The secret name is $username@$fqdn
+
+Assumptions:
+   1. The specified user exists as a Local user with no 2FA rules
+   2. The specified folder exists, is writeable, and defaults to appropriate
+      sharing rules
+   3. All passwords for servers are shared with the puppet user
+   4. All newly created passwords will be with 'Unix Account (SSH)' template
+   5. Passwords can be changed via /usr/sbin/chpasswd (install this if it is
+      not present).  This works for ubuntu, debian, redhat, centos, fedora,
+      and solaris (if chpasswd is installed from sunfreeware)
+   6. Password ages are in /etc/shadow in standard format (OK for redhat, 
+      centos, fedora, ubuntu, debian, solaris)
+   7. Secretserver v7.x API available
+
+Bugs:
+   1. No way to detect noop mode from functions, so secretserver will be 
+      updated even though the password is not changed on the client.
+
+
+# SSL CERTIFICATE CLASS
+This will synchronise certificate/key files on the client with the certificate
+and key data held in SecretServer.
+
+It will optionally restart Apache after making changes.
+
+Allows you to have certificates stored centrally, and multiple servers using 
+the same certificate automatically updated together by puppet.
+
+Should also work with Windows if you have service=>false and specify a
+windows file location with key=> and crt=>, though this is not tested.
+
+To use:
+ss::cert { 'www.auckland.ac.nz': }
+ss::cert { $fqdn: service=>false; }
+
+Attributes:
+  key, crt: Specify alternate locations for the files.  Default is to put them
+    into /etc/httpd/conf/$name.crt and /etc/httpd/conf/$name.key
+  service: set to false if you dont want it to restart httpd if cert changes
+  ss: set to false if you want it to pull from a file instead of secretserver
+
+SecretServer:
+  The certificates MUST be stored in an object with a Certificate template.
+  The secret name MUST correspond exactly to the namevar.
+
+Assumptions:
+  1. The puppet master must have read access to the certificate secret
+  2. The files are stored in the correct format.  No conversion or validation
+     is performed.
+  3. SecretServer API 7.6 or later available
+
+Bugs:
+  1. If you have service=>true (the default) then the definition of the httpd
+     service may conflict with something you subsequently define elsewhere.
+
