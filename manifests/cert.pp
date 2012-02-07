@@ -27,7 +27,6 @@ define ss::cert(
   $ss_password = hiera('ss_password'),
   $ss_hostname = hiera('ss_hostname')
 ) {
-  include ss
 
   if $ss {
     $certificate = ss_fetch_cert($name, $ss_username, $ss_password, $ss_hostname)
@@ -79,4 +78,5 @@ define ss::cert(
       withpath => false,
     }
   }
+
 }

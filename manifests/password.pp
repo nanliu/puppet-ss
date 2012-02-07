@@ -45,6 +45,7 @@ define ss::password (
   $ss_template = hiera('ss_template', 'Unix - Account (ssh)')
 ) {
   $account_age = ss_passwd_age($username)
+
   $ss_exists = ss_check($username, $::fqdn, $ss_username, $ss_password, $ss_hostname)
   if $debug {
     notice ( "ss::password: ${username} password age ${age_account} days, SS account record ${ss_exists}" )

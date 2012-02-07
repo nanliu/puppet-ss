@@ -16,11 +16,12 @@ module Puppet::Parser::Functions
       config.log_level    = :error     # changing the log level
       config.raise_errors = false
     end
+
     HTTPI.log = false
 
     # Establish session
     begin
-      ss = SecretServer.new(sshostname, "secretserver", ssuser, sspassword, '', 'Local' )
+      ss = Puppet::Util::SecretServer.new(sshostname, "secretserver", ssuser, sspassword, '', 'Local' )
     rescue Exception => e
       return 'unknown: rescued #{e.message}'
     end
@@ -34,7 +35,7 @@ module Puppet::Parser::Functions
       else
         s.each {|r|
           x = ss.get_secret(r)
-          if ( x.secret[:name] == ( itemusername+'@'+itemhostname) ) 
+          if ( x.secret[:name] == ( itemusername+'@'+itemhostname) )
             dunnit = 1
           end
         }
