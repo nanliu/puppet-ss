@@ -1,48 +1,47 @@
-
 require "rubygems"
 require "savon"
 require "base64"
 
-class SecretServer
-   attr_reader :error, :result, :templates, :folders
+class Puppet::Util::SecretServer
+  attr_reader :error, :result, :templates, :folders
 
-   class Secret
-     attr_reader :secret
+  class Secret
+    attr_reader :secret
 
-      def initialize( s )
-        @secret = s 
-      end
+    def initialize( s )
+      @secret = s
+    end
 
-      def update( what)
-        @secret[:items][:secret_item].each do |f|
-          if  what[f[:field_name]]
-            f[:value] =  what[f[:field_name]]
-             what.delete(f[:field_name])
-          end
+    def update( what)
+      @secret[:items][:secret_item].each do |f|
+        if  what[f[:field_name]]
+          f[:value] =  what[f[:field_name]]
+          what.delete(f[:field_name])
         end
-        raise ArgumentError, "field ''#{what.keys.join(',')}' not found in secret" if what.size > 0 
-
       end
-      @secret
-   end
+      raise ArgumentError, "field ''#{what.keys.join(',')}' not found in secret" if what.size > 0
 
-   class SearchResult
+    end
+    @secret
+  end
 
-      def initialize(results)
-          @search_result = results
-      end
+  class SearchResult
 
-      def secret_id
-         @search_result[:secret_id]
-      end
-      def secret_name
-         @search_result[:secret_name]
-      end
-      def secret_type_name
-         @search_result[:secret_type_name]
-      end
+    def initialize(results)
+      @search_result = results
+    end
 
-   end
+    def secret_id
+      @search_result[:secret_id]
+    end
+    def secret_name
+      @search_result[:secret_name]
+    end
+    def secret_type_name
+      @search_result[:secret_type_name]
+    end
+
+  end
 
 
   def initialize ( host, prefix, user, password, organizationCode, domain )
@@ -50,17 +49,17 @@ class SecretServer
     @folders = {}
     @templates = {}
     (pw, rad) =  password.split(':')
-    
+
     @client = Savon::Client.new { wsdl.document = "https://#{host}/#{prefix}/webservices/SSWebService.asmx?wsdl" }
 
-    if ! defined? @client 
-      raise RuntimeError, "Failed to connect to #{host}" 
+    if ! defined? @client
+      raise RuntimeError, "Failed to connect to #{host} https://#{host}/#{prefix}/webservices/SSWebService.asmx?wsdl"
     end
 
     if rad
-      request( 'AuthenticateRADIUS', {:username=>user, :password=> pw, 
-                                :radius_password => rad, :domain => domain, 
-                                :organization_code => organizationCode })
+      request( 'AuthenticateRADIUS', {:username=>user, :password=> pw,
+              :radius_password => rad, :domain => domain,
+              :organization_code => organizationCode })
     else
       request( 'Authenticate',  {:username=>user, :password=> pw })
 
@@ -121,7 +120,7 @@ class SecretServer
       secret_id = secret_id.secret_id
     end
     request( "DownloadFileAttachmentByItemId", 
-      { :secret_id => secret_id, :secret_item_id => item_id } )
+            { :secret_id => secret_id, :secret_item_id => item_id } )
 
     # do we need to decode from base64bin?
     Base64.decode64(@result[:file_attachment])
@@ -136,33 +135,33 @@ class SecretServer
     end
   end
 
-   def update_secret( secret )
-	# This is necessary because Thycotic break the SOAP standard
-	allitems = [ ]
-#	pp secret
-	secret.secret[:items][:secret_item].each { |i|
-		allitems.push( {
-			"Value" => i[:value],
-			"Id" => i[:id],
-			"FieldId" => i[:field_id],
-			"FieldName" => i[:field_name],
-			"IsFile" => i[:is_file],
-			"IsNotes" => i[:is_notes],
-			"IsPassword" => i[:is_password],
-			"FieldDisplayName" => i[:field_display_name],
-		} )
-	}
-	newsecret = {
-		"Name" => secret.secret[:name],
-		"Id" => secret.secret[:id],
-		"SecretTypeId" => secret.secret[:secret_type_id],
-		"FolderId" => secret.secret[:folder_id],
-		"Items" => { "SecretItem" => allitems }
-	}
+  def update_secret( secret )
+    # This is necessary because Thycotic break the SOAP standard
+    allitems = [ ]
+    #	pp secret
+    secret.secret[:items][:secret_item].each { |i|
+      allitems.push( {
+        "Value" => i[:value],
+        "Id" => i[:id],
+        "FieldId" => i[:field_id],
+        "FieldName" => i[:field_name],
+        "IsFile" => i[:is_file],
+        "IsNotes" => i[:is_notes],
+        "IsPassword" => i[:is_password],
+        "FieldDisplayName" => i[:field_display_name],
+      } )
+    }
+    newsecret = {
+      "Name" => secret.secret[:name],
+      "Id" => secret.secret[:id],
+      "SecretTypeId" => secret.secret[:secret_type_id],
+      "FolderId" => secret.secret[:folder_id],
+      "Items" => { "SecretItem" => allitems }
+    }
 
-	request('UpdateSecret', { :secret => newsecret } )
-   end
-  
+    request('UpdateSecret', { :secret => newsecret } )
+  end
+
   def generate_password( template_name )
     template = nil
     field_id = nil
@@ -170,7 +169,7 @@ class SecretServer
     get_templates if @templates.size == 0 
     template = @templates[template_name]
     raise ArgumentError, "Unknown template name '#{template_name}" unless template
-    
+
     template[:fields][:secret_field].each { |field|
       if field[:is_password]
         field_id = field[:id]
@@ -184,7 +183,7 @@ class SecretServer
   end
 
   def get_folders( name )
-    
+
     return if @folders[name]
     request( "SearchFolders", { :folder_name => name } )
     raise ArgumentError, "Could not find folder '#{name}'" unless @result[:folders]
@@ -200,22 +199,22 @@ class SecretServer
     fid = -1
 
     if template.class == String
-      get_templates if @templates.size == 0 
+      get_templates if @templates.size == 0
       raise ArgumentError, "Unknown template '#{template}'" unless @templates[template] 
-      template = @templates[template] 
+      template = @templates[template]
     end
 
     if folder.class == String
-      if folder == '' 
-	fid = -1
-      else 
-        get_folders(folder) unless @folders[folder] 
+      if folder == ''
+        fid = -1
+      else
+        get_folders(folder) unless @folders[folder]
         raise ArgumentError,"Unknown folder '#{folder}'" unless @folders[folder]
         folder = @folders[folder]
-	fid = folder[:id]
+        fid = folder[:id]
       end
     end
-    
+
     template[:fields][:secret_field].each { |field|
       n = params[field[:display_name]]
       ids << field[:id]
@@ -223,19 +222,18 @@ class SecretServer
         values << n
         params.delete(field[:display_name])
       else
-        values << ''          
+        values << ''
       end
     }
     raise ArgumentError, "field ''#{params.keys.join(',')}' not found in template" if params.size > 0 
 
-   request( "AddSecret", { 
-	:secret_type_id => template[:id], 
-	:secret_name => name, 
-	:folder_id => fid,  
-	:secret_field_ids => {:int=>ids}, 
-	:secret_item_values => {:string=>values} 
-	}) 
+    request( "AddSecret", {
+      :secret_type_id     => template[:id],
+      :secret_name        => name,
+      :folder_id          => fid,
+      :secret_field_ids   => { :int    => ids },
+      :secret_item_values => { :string => values }
+    })
   end
 
 end
-
